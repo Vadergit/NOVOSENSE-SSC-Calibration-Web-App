@@ -11,3 +11,5 @@ Live and capture: NSA2300 in analog-output mode reads existing data only; single
 
 ## NSA2860X AFE RAM
 Read original A4–A6, validate part ID, status and active mode, compare original bytes on firmware, enter CMD=0, apply only PGA gain (A4 high nibble), input swap and RAW_P (A5 bits 1:0), RAW_T (A6 bit 0), check readback, return CMD=3. Explicit user confirmation required. Changes can affect analog output; use isolated test chip. On failure restart sensor and verify settings. No NVM write. Existing measurement matrix is invalidated.
+
+Firmware compilation workflow targets generic ESP32-C3 and ATmega32U4 Leonardo (Pro Micro-compatible MCU, board pin mapping and upload settings must be verified). Compilation is not a physical bus validation.
