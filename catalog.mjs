@@ -17,7 +17,11 @@ export const catalog = [
       },
       {
         "id": "nsa2860(x)",
-        "name": "NSA2860(X)"
+        "name": "NSA2860 (Treiber offen)"
+      },
+      {
+        "id": "nsa2860x",
+        "name": "NSA2860X"
       },
       {
         "id": "nsc2860x",
