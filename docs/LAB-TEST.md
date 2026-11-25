@@ -11,3 +11,5 @@ Quellen: NSA2860X EN Rev 1.3 pp. 9–16, 25–26, https://www.novosns.com/Public
 7. Kaltstart bestätigen und vollständigen Shadow vergleichen; Chip-CRC-Status prüfen. Laborprotokoll exportieren. Kein Lock/Unlock, kein OTP, keine automatisierte Wiederherstellung. UI kann einen physischen Kaltstart oder dieselbe eindeutige Chipidentität nicht beweisen.
 ## Offene Freigabepunkte
 Hardwaretest, tatsächliche Hersteller-Kalibrierformeln je Modell, OEM-Board-Protokolle, OWI/SPI der DIY-Adapter, weitere Modelle, automatische Offset-/DAC-Kalibrierung, Serienbetrieb, Temperaturmodell/TK0/TKE im Chip, NVM-Rekonstruktion, Backup/Restore, Langzeitvalidierung. Nicht als funktionsfähige Beta für alle SSCs vermarkten.
+
+Pending programming attempts are saved in browser localStorage before sending the command and recovered after a disconnect or reload. A mismatched cold-start readback does not clear the lock. A failed RAM patch is blocked until a cold-start and new connection. Do not clear browser storage to bypass the test gate. Lab reports are separate from the offline fit. TK0-only 3-point calculation is an offline additive model, not native coefficient generation.

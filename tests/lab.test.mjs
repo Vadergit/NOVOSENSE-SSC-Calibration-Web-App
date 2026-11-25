@@ -5,3 +5,6 @@ test('patch and preservation',()=>{const s=base();const p=planEdit(s,{S0:1,OFFSE
 test('segment mode precision',()=>{const s=base();s.registers[0].value=128;assert.equal(planEdit(s,{CTC2:1/2**22}).quantized.CTC2,1/2**22)});
 test('DSP verification uses actual digits',()=>{assert.equal(checkDsp(100,105,5).pass,true);assert.equal(checkDsp(100,106,5).pass,false);assert.throws(()=>checkDsp(null,0,5));});
 test('gain selection and saturation',()=>{assert.equal(gainSuggestion(-1e6,1e6,4,[1,2,4,8,16,24,32],.8).gain,24);assert.throws(()=>gainSuggestion(0,8388607,1,[1],.8));});
+
+import {solveTk0,predict} from '../engine.mjs';
+test('three-point TK0 removes temperature offset without TKE',()=>{const m=solveTk0([{raw:100,temp:0,reference:0},{raw:1100,temp:0,reference:100},{raw:150,temp:10,reference:0}]);assert.equal(predict(m,650,10),50);assert.throws(()=>solveTk0([{raw:0,temp:0,reference:0},{raw:1,temp:0,reference:1},{raw:2,temp:0,reference:0}]));});
