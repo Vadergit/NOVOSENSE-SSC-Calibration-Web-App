@@ -9,10 +9,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - core: arduino:avr
+          - name: pro-micro-atmega32u4
+            core: arduino:avr
             fqbn: arduino:avr:leonardo
             url: ''
-          - core: esp32:esp32
+          - name: esp32-c3
+            core: esp32:esp32
             fqbn: esp32:esp32:esp32c3
             url: https://espressif.github.io/arduino-esp32/package_esp32_index.json
     steps:
@@ -29,4 +31,12 @@ jobs:
       - name: Compile
         env:
           FQBN: ${{ matrix.fqbn }}
-        run: arduino-cli compile --fqbn "$FQBN" firmware/novo_i2c
+        run: arduino-cli compile --fqbn "$FQBN" --output-dir dist/firmware firmware/novo_i2c
+      - uses: actions/upload-artifact@v4
+        with:
+          name: novo-i2c-4-${{ matrix.name }}
+          path: |
+            dist/firmware/*.bin
+            dist/firmware/*.hex
+            dist/firmware/*.json
+          if-no-files-found: error
