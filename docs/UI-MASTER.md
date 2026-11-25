@@ -1,0 +1,2 @@
+# UI master
+Styles and header derived directly from ELMOS master commit 13220433b1bde9b6ff8747f6fecf5262c1f85213. No ELMOS device commands or firmware are loaded. Offline views use NOVOSENSE's independent application module. All hardware-dependent tasks remain explicitly blocked. Master UI includes eight task tiles and eleven guided stages; the offline bridge calculator, file preview, manual logging and local archive are implemented. Classic page remains the earlier offline calculator, not full master classic parity. No hardware or production approval.
