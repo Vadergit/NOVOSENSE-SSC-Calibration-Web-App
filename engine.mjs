@@ -2,7 +2,7 @@
 export function solve(points, p=1,t=0){
  if(!Number.isInteger(p)||p<1||p>3||!Number.isInteger(t)||t<0||t>2)throw Error('Ungültige Ordnung');
  const n=(p+1)*(t+1);
- if(points.length<n||points.some(q=>![q.raw,q.reference,...(t?[q.temp]:[])].every(Number.isFinite)))throw Error('Messmatrix unvollständig');
+ if(!Array.isArray(points)||points.length>1000||points.length<n||points.some(q=>![q.raw,q.reference,...(t?[q.temp]:[])].every(Number.isFinite)))throw Error('Messmatrix unvollständig');
  const center=k=>points.reduce((a,q)=>a+q[k],0)/points.length;
  const x0=center('raw'), y0=t?center('temp'):0;
  const sx=Math.max(...points.map(q=>Math.abs(q.raw-x0))),sy=t?Math.max(...points.map(q=>Math.abs(q.temp-y0))):1;
