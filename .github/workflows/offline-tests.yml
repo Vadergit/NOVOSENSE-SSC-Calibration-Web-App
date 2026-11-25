@@ -12,6 +12,7 @@ jobs:
           node-version: '22'
       - run: node --check novosense.mjs
       - run: node --test tests/*.test.mjs
+      - run: python3 -m unittest discover -s native -p 'test_*.py'
       - run: npm install --no-save --no-package-lock playwright
       - run: npx playwright install --with-deps chromium
       - run: |

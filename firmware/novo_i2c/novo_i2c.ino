@@ -1,4 +1,4 @@
-// NOVOSENSE I2C bridge v1.0 – masked temporary AFE writes only; no arbitrary register write, no NVM/OTP operation.
+// NOVOSENSE I2C bridge v4 – masked temporary AFE writes only; no arbitrary register write, no NVM/OTP operation.
 #include <Arduino.h>
 #include <Wire.h>
 #if defined(ARDUINO_ARCH_ESP32)
@@ -22,7 +22,16 @@ void reply(unsigned long id,const char *status,const char *body){Serial.print(id
 void handle(char *s){
  unsigned long id=0;char cmd[8]={0};unsigned int a=0,r=0;int n=0;char extra=0;
  if(sscanf(s,"%lu %7s",&id,cmd)!=2)return;
- if(!strcmp(cmd,"HELLO")){reply(id,"OK","NOVO-I2C-3");return;}
+ if(!strcmp(cmd,"HELLO")){reply(id,"OK","NOVO-I2C-4");return;}
+ if(!strcmp(cmd,"INFO")){
+#if defined(ARDUINO_ARCH_ESP32)
+ reply(id,"OK","ESP32-C3");
+#elif defined(__AVR_ATmega32U4__)
+ reply(id,"OK","ATmega32U4");
+#else
+ reply(id,"ERR","UNSUPPORTED_MCU");
+#endif
+ return; }
  if(!strcmp(cmd,"R")&&sscanf(s,"%lu %7s %x %x %d %c",&id,cmd,&a,&r,&n,&extra)==5&&a<=127&&r<=255&&allowed(a,r,n)){
   uint8_t data[24];if(!readBytes(a,r,data,n)){reply(id,"ERR","I2C_NACK_OR_SHORT");return;}
   char out[49];for(int i=0;i<n;i++)snprintf(out+i*2,3,"%02X",data[i]);reply(id,"OK",out);return;

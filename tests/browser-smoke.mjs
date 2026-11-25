@@ -24,6 +24,16 @@ try{
  await page.locator('#guidedHomeTop').click();await page.locator('[data-gw-task="bridge"]').click();await page.locator('#bridgeCalc').click();assert.match(await page.locator('#bridgeResult').innerText(),/span_mV_V/);
  await page.locator('#guidedHomeTop').click();await page.locator('[data-gw-task="testlog"]').click();await page.locator('#logRaw').fill('1234');await page.locator('#logAdd').click();assert.match(await page.locator('.novo-table').innerText(),/1['’]?234/);
  await page.locator('#settingsOpen').click();await page.locator('#settingsTheme').selectOption('dark');assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ await page.locator('#guidedHomeTop').click();await page.locator('#gwConnectionToggle').click();
+ assert.equal(await page.locator('#adapter option').count(),5);
+ await page.locator('#model').selectOption('nsa2860x');
+ await page.locator('#adapter').selectOption('promicro');
+ assert.match(await page.locator('.gw-page').innerText(),/NOVO-I2C-4/);
+ await page.route('**/api/adapter',async route=>{const b=route.request().postDataJSON();await route.fulfill({json:{ok:true,result:b.action==='close'?{closed:true}:{board:'evm',versionBytes:[8],mode:0}}})});
+ await page.locator('#adapter').selectOption('evm');await page.locator('#usb').click();
+ await page.locator('#boardInfo').waitFor();assert.match(await page.locator('#boardInfo').innerText(),/versionBytes/);
+ assert.equal(await page.locator('#hwRead').isDisabled(),true);
+ await page.locator('#disconnect').click();await page.locator('#boardInfo').waitFor({state:'detached'});
  assert.deepEqual(errors,[]);
  console.log('Browser smoke: 8 tasks, calibration, AFE, verification, NVM lock, archive, bridge, logging, theme passed');
 }finally{await browser.close()}
