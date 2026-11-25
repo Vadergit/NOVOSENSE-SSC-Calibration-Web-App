@@ -1,4 +1,4 @@
-// NOVOSENSE I2C bridge v1.0 – no arbitrary register write, no NVM/OTP operation.
+// NOVOSENSE I2C bridge v1.0 – masked temporary AFE writes only; no arbitrary register write, no NVM/OTP operation.
 #include <Arduino.h>
 #include <Wire.h>
 #if defined(ARDUINO_ARCH_ESP32)
@@ -17,14 +17,27 @@ bool readBytes(uint8_t addr,uint8_t reg,uint8_t *out,int n){
  if(Wire.requestFrom((uint8_t)addr,(uint8_t)n)!=(uint8_t)n){while(Wire.available())Wire.read();return false;}
  for(int i=0;i<n;i++){if(!Wire.available())return false;out[i]=Wire.read();}return true;
 }
+bool writeByte(uint8_t a,uint8_t r,uint8_t v){Wire.beginTransmission(a);Wire.write(r);Wire.write(v);return Wire.endTransmission()==0;}
 void reply(unsigned long id,const char *status,const char *body){Serial.print(id);Serial.print(' ');Serial.print(status);Serial.print(' ');Serial.println(body);}
 void handle(char *s){
  unsigned long id=0;char cmd[8]={0};unsigned int a=0,r=0;int n=0;char extra=0;
  if(sscanf(s,"%lu %7s",&id,cmd)!=2)return;
- if(!strcmp(cmd,"HELLO")){reply(id,"OK","NOVO-I2C-1");return;}
+ if(!strcmp(cmd,"HELLO")){reply(id,"OK","NOVO-I2C-2");return;}
  if(!strcmp(cmd,"R")&&sscanf(s,"%lu %7s %x %x %d %c",&id,cmd,&a,&r,&n,&extra)==5&&a<=127&&r<=255&&allowed(a,r,n)){
   uint8_t data[24];if(!readBytes(a,r,data,n)){reply(id,"ERR","I2C_NACK_OR_SHORT");return;}
   char out[49];for(int i=0;i<n;i++)snprintf(out+i*2,3,"%02X",data[i]);reply(id,"OK",out);return;
+ }
+ // NSA2860X: compare original bytes, allow only gain/polarity/raw bits, no EEPROM program commands.
+ unsigned int o0,o1,o2,v0,v1,v2;
+ if(!strcmp(cmd,"A")&&sscanf(s,"%lu %7s %x %x %x %x %x %x %x %c",&id,cmd,&a,&o0,&o1,&o2,&v0,&v1,&v2,&extra)==9&&a==0x6d&&o0<256&&o1<256&&o2<256&&v0<256&&v1<256&&v2<256){
+  uint8_t part=0,status=0,mode=0,old[3],after[3];
+  if(!readBytes(a,0xd9,&part,1)||(part&127)!=1||!readBytes(a,2,&status,1)||!(status&2)||(status&0x7c)||!readBytes(a,0x30,&mode,1)||mode!=3||!readBytes(a,0xa4,old,3)||old[0]!=o0||old[1]!=o1||old[2]!=o2||(v0&15)!=(o0&15)||(v0>>4)>14||(v1&252)!=(o1&252)||(v2&254)!=(o2&254)){reply(id,"ERR","AFE_PRECONDITION");return;}
+  bool ok=writeByte(a,0x30,0);
+  if(ok)ok=writeByte(a,0xa4,v0)&&writeByte(a,0xa5,v1)&&writeByte(a,0xa6,v2)&&readBytes(a,0xa4,after,3)&&after[0]==v0&&after[1]==v1&&after[2]==v2;
+  if(!ok){writeByte(a,0xa4,old[0]);writeByte(a,0xa5,old[1]);writeByte(a,0xa6,old[2]);}
+  bool active=writeByte(a,0x30,3);
+  if(!ok||!active){reply(id,"ERR","AFE_FAILED_RESTART_TEST_CHIP");return;}
+  reply(id,"OK","AFE_RAM");return;
  }
  // Single conversion only. No OTP command or configuration writes.
  if(!strcmp(cmd,"M")&&sscanf(s,"%lu %7s %x %d %c",&id,cmd,&a,&n,&extra)==4&&(a==0x6c||a==0x6d)&&(n==0||n==1)){
