@@ -16,3 +16,5 @@ Firmware compilation workflow targets generic ESP32-C3 and ATmega32U4 Leonardo (
 
 ## v0.4.1
 Read-only profiles for NSA2302 (EN 1.2, A0–BC, configured I2C address selected explicitly; default table lists 0x7F, which is a reserved standard address) and NSA2860 (EN 1.4, A1–D9). NSA2302 temperature word is not converted to °C because the published scale is ambiguous. No conversion command for NSA2302 yet. NSA2860 has same part ID as NSA2860X; physical marking is mandatory. No writes for these two profiles. NSA2860X coefficient readback is decoded using documented fixed-point scales. New firmware uses protocol NOVO-I2C-3; previous versions must be reflashed. Source: https://www.novosns.com/Public/Uploads/uploadfile/files/20240205/NSA2302_Datasheet_Rev1.2_EN.pdf and https://www.novosns.com/Public/Uploads/uploadfile3/files/20240115/NSA2860_datasheet_Rev1.4_EN-513.pdf .
+
+Acquisition records carry sample count and pressure min/max. Editing raw fields clears chip provenance. The alarm page reads NSA2860X status and alarm configuration without writes. During a hardware transaction, navigation is blocked until completion.

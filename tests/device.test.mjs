@@ -12,3 +12,6 @@ test('2860 coefficients fixed point, unsigned S0, mode and clamp',()=>{const a=n
 test('2302 ADC modes remain distinct',()=>{assert.equal(decode2302([255,255,255,0,0],2,1,1).pressureRaw,-1);assert.equal(decode2302([255,255,255,0,0],2,1,0).tempRaw,-1);assert.equal(decode2302([0,0,0,0,0],2,1,2).pressureRaw,null);});
 test('status bit7 fault and mean',()=>{assert.equal(status2860(0x83).faults.length,1);assert.equal(averageSamples([{pressureRaw:1},{pressureRaw:3}]).pressureRaw,2);});
 test('2302 shadow identity and range',async()=>{const b={read:async(a,r,n)=>{const v=new Uint8Array(n);if(r===1||r===0xa0)v[0]=7;return v}};const dev=new Device(b,'nsa2302',0x7f);await dev.identify();assert.equal((await dev.snapshot()).registers.length,29)});
+
+test('fresh sample averaging refuses wrong mode',async()=>{const dev=new Device({},'nsa2860x',0x6d);dev.sample=async()=>({pressureCal:42,pressureRaw:null});await assert.rejects(dev.collect(1,true),/RAW_P/)});
+test('fresh sample averaging preserves extrema',async()=>{const dev=new Device({},'nsa2860x',0x6d);let n=0;dev.sample=async()=>({pressureRaw:++n,tempRaw:20});const m=await dev.collect(3,true,true);assert.equal(m.pressureRaw,2);assert.equal(m.pressureRawMin,1);assert.equal(m.pressureRawMax,3);});
