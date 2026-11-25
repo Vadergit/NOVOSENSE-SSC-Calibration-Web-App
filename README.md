@@ -1,15 +1,20 @@
 # NOVOSENSE SSC Calibration Web App · v0.5.0
 
-[Web-App](https://vadergit.github.io/NOVOSENSE-SSC-Calibration-Web-App/) · [SSC Calibration Studio](https://vadergit.github.io/SSC-Calibration-Studio/)
+**Labortestkandidat NSA2860X. Keine Produktionsfreigabe.**
 
-Geführte Oberfläche nach ELMOS-Master: Original-Styles, Live-KPI-Kopf (ohne Chipwerte), Aufgabenkacheln und elf Schritte. Offline-Messplanung, ADC-Aussteuerung, allgemeine Druck-/Temperaturregression, Nachmessung, Ausgangsplanung, Brückenrechner, Rohdatei-Vorschau, manuelles Logging, Browserarchiv und Export. Klassische Seitennavigation und geführte Ansicht nutzen dieselbe Offline-Logik; der frühere lineare Rechner bleibt unter linear.html verfügbar.
+Geführte und klassische Oberfläche nach ELMOS-Master, Offline-Druck-/Temperaturregression inkl. TK0-3-Punkte, Ausgangsplanung, Referenzmessung, Live-Graph, Logging, Brückenrechner, Archiv, Exporte.
 
-**Experimentelle Hardware-Leseversion.** Web Serial + eigene I²C-Bridge für NSA2300 und NSA2860X, Register-Shadow, ADC/DSP-Lesen, Live und manuelle Referenzaufnahme. NSA2860X temporäre AFE-Einstellungen mit Readback. Kein permanentes Schreiben; keine Hardwarefreigabe. [Bridge-Anleitung](docs/BRIDGE.md). Quellen: [docs.html](docs.html), [UI-Master](docs/UI-MASTER.md).
+## Hardwarestatus
+- ESP32-C3 / ATmega32U4: gemeinsame Firmware NOVO-I2C-5, I²C. Lesepfade NSA2300, NSA2302, NSA2860, NSA2860X. NSA2860X zusätzlich AFE-RAM und explizite Koeffizienten-/Alarm-/Clamp-Änderungen mit Readback sowie kontrollierter EEPROM-Testablauf. Nur entbehrliche Prüfmuster.
+- Original NSX2860_EVM: experimentelle Versionsdiagnose und Registerlesepfad über lokalen Dienst. CAL32: Versionsdiagnose. NSA2302-EVM: Hostprotokoll offen.
+- Weitere Modelle offline. Native Kalibrierberechnung, alle Adapter und weitere Hardwarefunktionen noch nicht vollständig implementiert.
 
-Lokal: python3 -m http.server 8000. Tests: node --test tests/*.test.mjs.
+## Dokumentation
+- [Labor-Testplan](docs/LAB-TEST.md)
+- [Adapterkonzept](docs/ADAPTERS.md)
+- [Protokoll](docs/PROTOCOL.md)
+- [Hardwarestatus](docs/HARDWARE.md)
+- [Technische Quellen](docs.html)
+- [UI-Master](docs/UI-MASTER.md)
 
-Additional read-only models: NSA2302 and NSA2860. New firmware protocol NOVO-I2C-3; reflash required. No permanent programming.
-
-Adapterauswahl für ESP32-C3, Pro Micro, EVM, CAL32 und NSA2302 EVAL; [Adapterkonzept und lokaler Dienst](docs/ADAPTERS.md). Experimentelle Originalboard-Diagnose, kein Produktionsbetrieb.
-
-**v0.5.0 – Labortestkandidat NSA2860X**: [Testplan](docs/LAB-TEST.md), NOVO-I2C-5. Keine Produktionsfreigabe; manuelle Koeffizienten, abgesicherte RAM- und EEPROM-Testsequenz. Andere Modelle unverändert.
+Softwaretests und Firmware-Compilergebnisse stehen in GitHub Actions. Keine physische Hardwarevalidierung. Die ursprüngliche lineare Offline-App ist unter linear.html verfügbar.

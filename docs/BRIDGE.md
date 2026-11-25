@@ -1,3 +1,7 @@
+# Aktuell: NOVO-I2C-5 · Labortestkandidat
+
+**Die folgenden v1–v4 Abschnitte sind historische Angaben zum Lesezugriff.** Für aktuelle RAM-/EEPROM-Testfunktionen ausschliesslich [LAB-TEST.md](LAB-TEST.md) und [PROTOCOL.md](PROTOCOL.md) verwenden. Keine Produktionsfreigabe.
+
 # NOVOSENSE I²C bridge v2 protocol (experimental)
 Sources: [NSA2300 EN 2.3](https://www.novosns.com/datasheet/NSA2300-QMOR/NSA2300.pdf), pp. 7–10, 14–16, 19–20; [NSA2860X EN 1.4](https://www.novosns.com/Public/Uploads/uploadfile/files/20240115/NSA2860X_Datasheet_Rev1.4_EN-843.pdf), §§5–7. Public technical sources only.
 ## Hardware
