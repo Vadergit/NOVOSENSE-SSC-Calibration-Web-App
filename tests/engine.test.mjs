@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {solve,predict,verify} from '../engine.mjs';
+test('linear',()=>{const m=solve([{raw:100,reference:0},{raw:200,reference:100}]);assert.ok(Math.abs(predict(m,150)-50)<1e-9);assert.equal(verify(m,[{raw:150,reference:50}],100,.1)[0].pass,true);});
+test('temperature matrix',()=>{const points=[0,1,2].flatMap(temp=>[10,20].map(raw=>({raw,temp,reference:raw*(2+temp)+temp**2})));const m=solve(points,1,2);assert.ok(Math.abs(predict(m,15,1.5)-54.75)<1e-8);});
+test('reject rank deficiency',()=>assert.throws(()=>solve([{raw:1,reference:0},{raw:1,reference:1}])));test('verification tolerance',()=>{const m=solve([{raw:0,reference:0},{raw:100,reference:100}]);assert.equal(verify(m,[{raw:50,reference:55}],100,1)[0].pass,false);});
