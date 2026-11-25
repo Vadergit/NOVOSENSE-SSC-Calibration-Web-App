@@ -29,10 +29,11 @@ function invalidate(){s.fit=null;s.results=null;s.output=null;}
 function resetPoints(){s.points=[];s.checks=[];s.selected=0;s.source='manual';invalidate();}
 function setModel(v){if(v===s.model)return;if(!bridge.closed||hardwareBusy){render();message('Zuerst Adapter trennen.','warn');return;}if((s.points.length||s.log.length)&&!confirm('Modell wechseln und aktuelle Messdaten verwerfen?')){render();return;}s.model=v;chosenAddress=profiles[v]?.addresses.at(-1)||0x6d;resetPoints();s.log=[];s.diag=null;const u=new URL(location.href);u.searchParams.set('model',v);history.replaceState(null,'',u);render();}
 function plan(){if(!finite(s.lo,s.hi)||s.hi<=s.lo||s.temps.slice(0,s.t).some(x=>!valid(x))||new Set(s.temps.slice(0,s.t)).size!==s.t)throw Error('Druckbereich und unterschiedliche Temperatur-Sollwerte prüfen.');if(!s.points.length)s.points=Array.from({length:s.p*s.t},(_,i)=>({reference:s.lo+(s.hi-s.lo)*(i%s.p)/(s.p-1),targetTemp:s.temps[Math.floor(i/s.p)],raw:null,temp:null}));}
-function toggleView(){if(hardwareBusy)return;classic=!classic;render()}
-function home(){if(hardwareBusy)return;s.task='home';s.step=0;render()}
+function hideSettings(){ $('settingsPanel').hidden=true;$('settingsOpen').setAttribute('aria-expanded','false');}
+function toggleView(){if(hardwareBusy)return;hideSettings();classic=!classic;render()}
+function home(){if(hardwareBusy)return;hideSettings();s.task='home';s.step=0;render()}
 function go(i){if(hardwareBusy)return;if(i===0)return home();if(i>=4&&!s.points.length){try{plan()}catch(e){message(e.message,'error');return;}}s.task='calibration';s.step=i;render();}
-function task(k){if(hardwareBusy)return;if(k==='calibration'){s.task=k;s.step=1}else{s.task=k;s.step=0}render()}
+function task(k){if(hardwareBusy)return;hideSettings();if(k==='calibration'){s.task=k;s.step=1}else{s.task=k;s.step=0}render()}
 function download(name,data,type='application/json'){const url=URL.createObjectURL(new Blob([data],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function report(){return {version:'0.4.2',mode:'offline-fit',hardwareRead:s.points.some(q=>q.acquisition?.source==='chip'),model:s.model,source:s.source,hardwareProgrammed:false,createdAt:new Date().toISOString(),range:[s.lo,s.hi],unit:s.unit,pressureOrder:s.p-1,temperatureOrder:s.t-1,temperatureTargets:s.temps.slice(0,s.t),points:s.points,fit:s.fit,tolerancePercent:s.tol,verification:s.results,outputPlan:s.output,verificationStatus:s.results?(s.results.every(q=>q.pass)?'within_offline_tolerance':'failed'):'not_verified'};}
 function archiveRead(){try{return JSON.parse(localStorage.getItem('novo-archive-v1')||'[]')}catch{return []}}

@@ -23,7 +23,7 @@ try{
  await page.locator('#guidedHomeTop').click();await page.locator('[data-gw-task="archive"]').click();assert.equal(await page.locator('[data-archive]').count(),1);
  await page.locator('#guidedHomeTop').click();await page.locator('[data-gw-task="bridge"]').click();await page.locator('#bridgeCalc').click();assert.match(await page.locator('#bridgeResult').innerText(),/span_mV_V/);
  await page.locator('#guidedHomeTop').click();await page.locator('[data-gw-task="testlog"]').click();await page.locator('#logRaw').fill('1234');await page.locator('#logAdd').click();assert.match(await page.locator('.novo-table').innerText(),/1['’]?234/);
- await page.locator('#settingsOpen').click();await page.locator('#settingsTheme').selectOption('dark');assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+ await page.locator('#settingsOpen').click();await page.locator('#settingsTheme').selectOption('dark');assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');await page.locator('#settingsOpen').click();
  await page.locator('#guidedHomeTop').click();await page.locator('#gwConnectionToggle').click();
  assert.equal(await page.locator('#adapter option').count(),5);
  await page.locator('#model').selectOption('nsa2860x');
