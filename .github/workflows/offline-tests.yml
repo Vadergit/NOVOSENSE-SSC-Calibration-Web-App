@@ -10,5 +10,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --check guided.mjs
+      - run: node --check novosense.mjs
       - run: node --test tests/*.test.mjs
+      - run: npm install --no-save --no-package-lock playwright
+      - run: npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 8000 --bind 127.0.0.1 &
+          sleep 2
+          node tests/browser-smoke.mjs
