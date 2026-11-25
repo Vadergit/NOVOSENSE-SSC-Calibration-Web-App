@@ -24,7 +24,7 @@ void handle(char *s){
  if(sscanf(s,"%lu %7s",&id,cmd)!=2)return;
  if(!strcmp(cmd,"HELLO")){reply(id,"OK","NOVO-I2C-4");return;}
  if(!strcmp(cmd,"INFO")){
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_IDF_TARGET_ESP32C3)
  reply(id,"OK","ESP32-C3");
 #elif defined(__AVR_ATmega32U4__)
  reply(id,"OK","ATmega32U4");

@@ -105,10 +105,13 @@ class Transport:
                     self.record("RX_DISCARD",chunk)
                     continue
                 raw.extend(chunk)
-                if len(raw)==2 and raw[1]<5:
+                if len(raw)==2 and raw[1]<4:
                     raise ValueError("Invalid frame length")
                 if len(raw)>=2 and len(raw)==raw[1]:
                     self.record("RX",raw)
+                    if bytes(raw)==data:
+                        raw.clear()
+                        continue
                     return response(raw,self.address,function,expected)
             self.record("RX_PARTIAL",raw)
             raise TimeoutError("Board response timeout; check parity, RS485 and adapter timing")

@@ -1,0 +1,6 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {boardFrame,boardResponse,Cal32Bridge} from '../adapters.mjs';
+test('manufacturer CRC vectors',()=>{assert.deepEqual([...boardFrame(0xe1,1)],[0xe1,4,1,0xf6]);assert.deepEqual([...boardFrame(0x80,0)],[0x80,4,0,0x5f]);assert.deepEqual(boardResponse(Uint8Array.of(0xe1,6,1,0,8,0x7e),0xe1,1),[8]);});
+test('invalid response rejects',()=>{assert.throws(()=>boardResponse(Uint8Array.of(0xe1,6,1,0,8,0),0xe1,1),/CRC/);assert.throws(()=>boardResponse(Uint8Array.of(0xe1,6,1,0,8,0x7e),0xe1,2),/Funktion/);assert.throws(()=>new Cal32Bridge(1));});
+test('32CAL direct serial with echo and split response',async()=>{const b=new Cal32Bridge(0x80),sent=boardFrame(0x80,0),r=[0x80,6,0,0,7];const {crc8}=await import('../hardware.mjs');const chunks=[sent,Uint8Array.of(...r.slice(0,2)),Uint8Array.of(...r.slice(2),crc8(r))];const port={open:async o=>assert.equal(o.baudRate,250000),close:async()=>{},readable:{getReader:()=>({read:async()=>({value:chunks.shift(),done:false}),cancel:async()=>{},releaseLock:()=>{}})},writable:{getWriter:()=>({write:async v=>assert.deepEqual(v,sent),releaseLock:()=>{}})}};const info=await b.connect(port);assert.deepEqual(info.versionBytes,[7]);await b.close();assert.equal(b.closed,true);});

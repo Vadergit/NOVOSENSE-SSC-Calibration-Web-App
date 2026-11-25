@@ -35,3 +35,6 @@ Der Dienst bindet ausschliesslich 127.0.0.1, akzeptiert nur gleiche Origin und f
 - AN-12-0040 (NSA2302 evaluation system): https://www.novosns.com/Public/Uploads/uploadfile3/files/20241128/AN-12-0040-NSA2302_EVAL_System_User_Guide-964.pdf
 
 PDF command table screenshots could not be retrieved; text extraction was used. Real frame captures are needed to confirm EVM read payload and parity switching. NSA2302 EVM host command list remains unavailable.
+
+### 32CAL direkt im Browser
+32CAL nutzt 8N1 und kann alternativ ohne nativen Dienst direkt via USB-RS485 mit Chrome/Edge verbunden werden. MCU-Adresse vor dem Öffnen wählen (0x80–0xF0, Standard 0x80). Versionsframe 0x00, Adress-/Längen-/CRC-/Statusprüfung. Kanalwahl, Sensorzugriff und Programmierung sind noch nicht freigegeben. Native CLI bleibt als Diagnosealternative vorhanden.
