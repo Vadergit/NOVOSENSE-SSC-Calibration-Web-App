@@ -1,0 +1,7 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {solve,predict,verify} from '../engine.mjs';
+test('linear',()=>{const m=solve([{raw:100,reference:0},{raw:200,reference:100}]);assert.ok(Math.abs(predict(m,150)-50)<1e-9);assert.equal(verify(m,[{raw:150,reference:50}],100,.1)[0].pass,true);});
+test('temperature matrix',()=>{const points=[0,1,2].flatMap(temp=>[10,20].map(raw=>({raw,temp,reference:raw*(2+temp)+temp**2})));const m=solve(points,1,2);assert.ok(Math.abs(predict(m,15,1.5)-54.75)<1e-8);});
+test('reject rank deficiency',()=>assert.throws(()=>solve([{raw:1,reference:0},{raw:1,reference:1}])));test('verification tolerance',()=>{const m=solve([{raw:0,reference:0},{raw:100,reference:100}]);assert.equal(verify(m,[{raw:50,reference:55}],100,1)[0].pass,false);});
+
+import {crc8,signed24,adcPlan,nsa2300TwoPoint,nsa2300Evaluate} from '../hardware.mjs';
+test('manufacturer CRC vector',()=>assert.equal(crc8([0xe1,4,0x23]),0x18));test('signed24 boundaries',()=>{assert.equal(signed24(0x800000),-8388608);assert.equal(signed24(0xffffff),-1);assert.equal(signed24(0x7fffff),8388607);});test('AFE planner inversion',()=>{assert.equal(adcPlan(100,-100).inverted,true);assert.throws(()=>adcPlan(0,0));});test('NSA2300 equation 2P1T',()=>{const c=nsa2300TwoPoint(.1,.5,.2,.8,.1);assert.ok(Math.abs(nsa2300Evaluate(c,.1)-.2)<1e-12);assert.ok(Math.abs(nsa2300Evaluate(c,.5)-.8)<1e-12);});

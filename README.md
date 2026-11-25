@@ -1,11 +1,9 @@
-# NOVOSENSE SSC Calibration Web App
+# NOVOSENSE SSC Calibration Web App · v0.2.0
 
-[Kalibrierassistent öffnen](https://vadergit.github.io/NOVOSENSE-SSC-Calibration-Web-App/) · [SSC Calibration Studio](https://vadergit.github.io/SSC-Calibration-Studio/)
+[Web-App](https://vadergit.github.io/NOVOSENSE-SSC-Calibration-Web-App/) · [SSC Calibration Studio](https://vadergit.github.io/SSC-Calibration-Studio/)
 
-Modelle und Gruppen: NSA2200, NSA2300, NSA2302, NSA2860(X), NSC2860X, NSA/NSC9260(X), NSC9262, NSC9264.
+Offline-Laborversion. Standard: geführte Ansicht nach ELMOS-Ablauf; klassische lineare Ansicht weiterhin verfügbar. Messkonzept 2–4 Druckpunkte und 1–3 Temperaturbedingungen, manuelle oder synthetische Rohwerte, generisches Polynom, unabhängige Offline-Prüfung mit Abweichungsgrafik und Toleranz, AFE-Aussteuerungsrechner, JSON/CSV und Druckbericht. Separate NSA2300-2P1T-Gleichung ohne Registerkodierung.
 
-Die App folgt der gemeinsamen Schrittfolge Verbindung → AFE → Messpunkte → Berechnung und Prüfung → Programmierung und Export. Im Simulationsmodus stehen manuelle und synthetische Messpunkte, linearer Gain und Offset, ein Prüfrohwert und ein JSON-Bericht bereit. AFE-Zugriff, Herstellerprotokolle und RAM-/NVM-Schreiben benötigen einen gerätespezifischen Treiber und Hardwaretests.
+**Keine Hardwarefreigabe.** Kein Schreiben in RAM, EEPROM oder OTP. Die generische Regression ist kein Ersatz für Herstellerkoeffizienten. Öffentliche Quellen und Freigabekriterien: [docs.html](docs.html). Private Bibliotheksdateien wurden nicht veröffentlicht.
 
-## Lokal starten
-
-`python3 -m http.server 8000 --bind 127.0.0.1` im Projektordner ausführen und `http://127.0.0.1:8000/` öffnen. Der URL-Parameter `model` wählt eine ID aus `catalog.mjs` vor.
+Lokal: `python3 -m http.server 8000 --bind 127.0.0.1`; Browser: http://127.0.0.1:8000/. Tests: `node --test tests/*.test.mjs`. URL-Parameter `model` bleibt kompatibel mit dem Studio.
