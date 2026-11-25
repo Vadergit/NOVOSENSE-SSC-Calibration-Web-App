@@ -1,4 +1,4 @@
-# NOVOSENSE SSC Calibration Web App · v0.4.2
+# NOVOSENSE SSC Calibration Web App · v0.5.0
 
 [Web-App](https://vadergit.github.io/NOVOSENSE-SSC-Calibration-Web-App/) · [SSC Calibration Studio](https://vadergit.github.io/SSC-Calibration-Studio/)
 
@@ -11,3 +11,5 @@ Lokal: python3 -m http.server 8000. Tests: node --test tests/*.test.mjs.
 Additional read-only models: NSA2302 and NSA2860. New firmware protocol NOVO-I2C-3; reflash required. No permanent programming.
 
 Adapterauswahl für ESP32-C3, Pro Micro, EVM, CAL32 und NSA2302 EVAL; [Adapterkonzept und lokaler Dienst](docs/ADAPTERS.md). Experimentelle Originalboard-Diagnose, kein Produktionsbetrieb.
+
+**v0.5.0 – Labortestkandidat NSA2860X**: [Testplan](docs/LAB-TEST.md), NOVO-I2C-5. Keine Produktionsfreigabe; manuelle Koeffizienten, abgesicherte RAM- und EEPROM-Testsequenz. Andere Modelle unverändert.

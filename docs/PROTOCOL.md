@@ -15,3 +15,6 @@ M arguments are address (hex), conversion mode (decimal, 0 temperature or 1 pres
 ESP32-C3 uses GPIO8 SDA / GPIO9 SCL (verify board and boot straps). Pro Micro uses hardware Wire SDA/SCL. I2C 100 kHz. Correct external power and logic levels are mandatory; no direct connection of 24 V or analog OWI to MCU pins. Pro Micro 5 V and 3.3 V variants differ; use appropriate level translation. No integrated SPI/OWI transport yet.
 ## Original board protocols
 See [ADAPTERS.md](ADAPTERS.md). NSX2860_EVM uses RS485 with MARK address and SPACE body; 32CAL uses 8N1. These are separate host protocols and not interchangeable with NOVO-I2C-4. Firmware builds produce downloadable artifacts via GitHub Actions. For ESP32 use the matching board flash procedure; Pro Micro bootloader variant and voltage/clock must be checked before flashing (CI targets Leonardo MCU-compatible build).
+
+## NOVO-I2C-5 (Labor)
+Siehe [LAB-TEST.md](LAB-TEST.md). W 6D <reghex> <count> <oldhex> <newhex> vergleicht und schreibt erlaubte RAM-Gruppen. P 6D <8-stelliger FNV-1a-Digest> ist ausschliesslich für den expliziten EEPROM-Test auf einem entbehrlichen NSA2860X. Firmware prüft Lock, Status, RAW-Bits, kompletten zugänglichen Shadow; kein Lock/OTP. Nach P Kaltstart erforderlich. Keine Wiederholung bei Fehler.

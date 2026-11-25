@@ -34,7 +34,7 @@ jobs:
         run: arduino-cli compile --fqbn "$FQBN" --output-dir dist/firmware firmware/novo_i2c
       - uses: actions/upload-artifact@v4
         with:
-          name: novo-i2c-4-${{ matrix.name }}
+          name: novo-i2c-5-${{ matrix.name }}
           path: |
             dist/firmware/*.bin
             dist/firmware/*.hex

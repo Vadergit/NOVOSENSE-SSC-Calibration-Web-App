@@ -1,4 +1,4 @@
-// NOVOSENSE I2C bridge v4 – masked temporary AFE writes only; no arbitrary register write, no NVM/OTP operation.
+// NOVOSENSE I2C bridge v5 – guarded laboratory RAM/EEPROM operations for NSA2860X only; no OTP/lock.
 #include <Arduino.h>
 #include <Wire.h>
 #if defined(ARDUINO_ARCH_ESP32)
@@ -19,10 +19,18 @@ bool readBytes(uint8_t addr,uint8_t reg,uint8_t *out,int n){
 }
 bool writeByte(uint8_t a,uint8_t r,uint8_t v){Wire.beginTransmission(a);Wire.write(r);Wire.write(v);return Wire.endTransmission()==0;}
 void reply(unsigned long id,const char *status,const char *body){Serial.print(id);Serial.print(' ');Serial.print(status);Serial.print(' ');Serial.println(body);}
+bool parseHex(const char *str,uint8_t *out,int n){if(strlen(str)!=size_t(n*2))return false;for(int i=0;i<n;i++){char x[3]={str[i*2],str[i*2+1],0};char *end;unsigned long v=strtoul(x,&end,16);if(end!=x+2||v>255)return false;out[i]=(uint8_t)v;}return true;}
+bool sameBytes(const uint8_t *a,const uint8_t *b,int n){return memcmp(a,b,n)==0;}
+bool patchAllowed(unsigned int r,int n,const uint8_t *old,const uint8_t *next){
+ if(r==0xa1&&n==1)return ((old[0]^next[0])&0x8f)==0 && (!(next[0]&32)||(next[0]&64));
+ return (r==0xa7&&n==2)||(r==0xa9&&n==16)||(r==0xb9&&n==7)||(r==0xce&&n==1);
+}
+bool ready2860(uint8_t a,bool unlocked){uint8_t part=0,status=0,mode=0;return readBytes(a,0xd9,&part,1)&&(part&127)==1&&(!unlocked||!(part&128))&&readBytes(a,2,&status,1)&&(status&2)&&!(status&0xfc)&&readBytes(a,0x30,&mode,1)&&mode==3;}
+bool hashShadow(uint8_t a,uint32_t &hash){hash=2166136261UL;uint8_t bytes[16];for(int r=0xa1;r<=0xd9;){int n=min(16,0xda-r);if(!readBytes(a,(uint8_t)r,bytes,n))return false;for(int i=0;i<n;i++)hash=(hash^bytes[i])*16777619UL;r+=n;}return true;}
 void handle(char *s){
  unsigned long id=0;char cmd[8]={0};unsigned int a=0,r=0;int n=0;char extra=0;
  if(sscanf(s,"%lu %7s",&id,cmd)!=2)return;
- if(!strcmp(cmd,"HELLO")){reply(id,"OK","NOVO-I2C-4");return;}
+ if(!strcmp(cmd,"HELLO")){reply(id,"OK","NOVO-I2C-5");return;}
  if(!strcmp(cmd,"INFO")){
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_IDF_TARGET_ESP32C3)
  reply(id,"OK","ESP32-C3");
@@ -47,6 +55,25 @@ void handle(char *s){
   bool active=writeByte(a,0x30,3);
   if(!ok||!active){reply(id,"ERR","AFE_FAILED_RESTART_TEST_CHIP");return;}
   reply(id,"OK","AFE_RAM");return;
+ }
+ // Restricted laboratory RAM patch: only documented coefficient blocks, clamp and alarm bits.
+ char oldHex[33]={0},newHex[33]={0};
+ if(!strcmp(cmd,"W")&&sscanf(s,"%lu %7s %x %x %d %32s %32s %c",&id,cmd,&a,&r,&n,oldHex,newHex,&extra)==7&&a==0x6d&&n>=1&&n<=16){
+  uint8_t old[16],next[16],actual[16];
+  if(!parseHex(oldHex,old,n)||!parseHex(newHex,next,n)||!patchAllowed(r,n,old,next)||!ready2860(a,true)||!readBytes(a,r,actual,n)||!sameBytes(old,actual,n)){reply(id,"ERR","PATCH_PRECONDITION");return;}
+  bool ok=writeByte(a,0x30,0);if(ok){for(int i=0;i<n&&ok;i++)ok=writeByte(a,r+i,next[i]);ok=ok&&readBytes(a,r,actual,n)&&sameBytes(next,actual,n);}
+  if(!ok){for(int i=0;i<n;i++)writeByte(a,r+i,old[i]);}
+  bool active=writeByte(a,0x30,3);
+  if(!ok||!active){reply(id,"ERR","PATCH_FAILED_POWER_CYCLE_REQUIRED");return;}reply(id,"OK","RAM_PATCH_READBACK");return;
+ }
+ // EEPROM test commit: exact current shadow digest, unlocked, calibrated data mode, no retries.
+ unsigned long expected=0;uint32_t observed=0;uint8_t cfg[2],prog=0;
+ if(!strcmp(cmd,"P")&&sscanf(s,"%lu %7s %x %lx %c",&id,cmd,&a,&expected,&extra)==4&&a==0x6d){
+  if(!ready2860(a,true)||!readBytes(a,0xa5,cfg,2)||(cfg[0]&1)||(cfg[1]&1)||!hashShadow(a,observed)||observed!=(uint32_t)expected){reply(id,"ERR","EEPROM_PRECONDITION");return;}
+  if(!writeByte(a,0x30,0x33)||!writeByte(a,0x6a,0x1e)){reply(id,"ERR","EEPROM_STATE_UNKNOWN_DO_NOT_RETRY");return;}
+  unsigned long start=millis();bool done=false;while(millis()-start<1600){delay(20);if(readBytes(a,0x6a,&prog,1)&&prog==0){done=true;break;}}
+  if(!done){reply(id,"ERR","EEPROM_STATE_UNKNOWN_DO_NOT_RETRY");return;}
+  reply(id,"OK","EEPROM_DONE_POWER_CYCLE_REQUIRED");return;
  }
  // Single conversion only. No OTP command or configuration writes.
  if(!strcmp(cmd,"M")&&sscanf(s,"%lu %7s %x %d %c",&id,cmd,&a,&n,&extra)==4&&(a==0x6c||a==0x6d)&&(n==0||n==1)){

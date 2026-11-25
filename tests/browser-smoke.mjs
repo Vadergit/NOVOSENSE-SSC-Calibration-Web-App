@@ -28,7 +28,7 @@ try{
  assert.equal(await page.locator('#adapter option').count(),5);
  await page.locator('#model').selectOption('nsa2860x');
  await page.locator('#adapter').selectOption('promicro');
- assert.match(await page.locator('.gw-page').innerText(),/NOVO-I2C-4/);
+ assert.match(await page.locator('.gw-page').innerText(),/NOVO-I2C-5/);
  await page.route('**/api/adapter',async route=>{const b=route.request().postDataJSON();await route.fulfill({json:{ok:true,result:b.action==='close'?{closed:true}:{board:'evm',versionBytes:[8],mode:0}}})});
  await page.locator('#adapter').selectOption('evm');await page.locator('#usb').click();
  await page.locator('#boardInfo').waitFor();assert.match(await page.locator('#boardInfo').innerText(),/versionBytes/);
